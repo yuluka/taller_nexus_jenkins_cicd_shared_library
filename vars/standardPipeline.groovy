@@ -49,8 +49,12 @@ def call(Map rawConfig = [:]) {
                     echo ">> Desplegando en servidor QA: ${cfg.deployTarget}..."
                     script {
                         deployAttempted = true
-                        withCredentials([sshUserPrivateKey(credentialsId: 'ssh-deploy-qa', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                        withCredentials([
+                            sshUserPrivateKey(credentialsId: 'ssh-deploy-qa', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER'),
+                            usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')
+                        ]) {
                             sh """
+                                echo "\$NEXUS_PASS" | ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" "\$SSH_USER@${cfg.deployTarget}" "docker login ${cfg.nexusHost}:${cfg.dockerPort} -u '\$NEXUS_USER' --password-stdin"
                                 ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" "\$SSH_USER@${cfg.deployTarget}" '
                                     set -e
                                     echo "Descargando imagen: ${deployedImage}..."
