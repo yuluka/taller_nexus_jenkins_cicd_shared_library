@@ -11,7 +11,6 @@ def call(Map rawConfig = [:]) {
         options {
             timeout(time: 30, unit: 'MINUTES')
             timestamps()
-            ansiColor('xterm')
         }
 
         stages {
